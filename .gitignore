@@ -1,0 +1,62 @@
+# Secrets, credentials and environment variables
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.cert
+*.crt
+*.secret
+credentials.json
+secrets.json
+
+# Virtual Environments
+venv/
+env/
+.venv/
+chinese_vocab_env/
+ENV/
+
+# Python cache & build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Transient runtime files & large binaries
+cloudflared.exe
+tunnel_info.json
+*.log
+debug_crops/
+batch_100_test/
+*.tmp
+*.bak
+.cache/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# IDE configurations
+.idea/
+.vscode/
+*.swp
+*.swo
