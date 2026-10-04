@@ -275,18 +275,50 @@ async def get_demo_samples():
     return {"samples": samples}
 
 
+def get_cjk_font(size: int):
+    """
+    Tìm font chữ CJK hỗ trợ tiếng Trung trên nhiều hệ điều hành:
+    - Windows: msyh.ttc, simsun.ttc, simhei.ttf
+    - Linux (Render / Ubuntu / Debian / Docker): wqy-microhei, wqy-zenhei, NotoSansCJK, DroidSansFallback
+    - Fallback: ImageFont.load_default()
+    """
+    candidate_paths = [
+        # Windows
+        "C:/Windows/Fonts/msyh.ttc",
+        "C:/Windows/Fonts/simsun.ttc",
+        "C:/Windows/Fonts/simhei.ttf",
+        # Linux (Render, Railway, Ubuntu, Debian, Docker)
+        "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc",
+        "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    ]
+    for p in candidate_paths:
+        if os.path.exists(p):
+            try:
+                return ImageFont.truetype(p, size)
+            except Exception:
+                pass
+    try:
+        return ImageFont.load_default()
+    except Exception:
+        return None
+
+
 def generate_demo_samples_if_missing():
     """Tạo sẵn các trang ảnh mẫu chứa khung màu đen và văn bản bên ngoài để demo tức thì"""
     try:
-        font_cjk_path = "C:/Windows/Fonts/msyh.ttc"
-        if not os.path.exists(font_cjk_path):
-            font_cjk_path = "C:/Windows/Fonts/simsun.ttc"
-        if not os.path.exists(font_cjk_path):
+        # Nếu các tệp mẫu đã có sẵn (được commit trong static/test_samples), không cần tạo lại
+        sample_names = ["sample_lesson_01.png", "sample_lesson_02.png", "sample_lesson_03.png"]
+        all_exist = all(os.path.exists(os.path.join(TEST_SAMPLES_DIR, f)) for f in sample_names)
+        if all_exist:
             return
 
-        font_large = ImageFont.truetype(font_cjk_path, 34)
-        font_mid = ImageFont.truetype(font_cjk_path, 24)
-        font_small = ImageFont.truetype(font_cjk_path, 18)
+        font_large = get_cjk_font(34)
+        font_mid = get_cjk_font(24)
+        font_small = get_cjk_font(18)
 
         demo_data = [
             {
@@ -376,4 +408,9 @@ def generate_demo_samples_if_missing():
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
+    # Hỗ trợ cổng linh hoạt từ biến môi trường PORT (cần thiết cho Render, Railway, Heroku)
+    port = int(os.environ.get("PORT", 8000))
+    host = os.environ.get("HOST", "0.0.0.0")
+    print(f"Starting server on {host}:{port}...")
+    uvicorn.run("app:app", host=host, port=port, reload=False)
+
